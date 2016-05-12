@@ -21,6 +21,7 @@ var msgs=[
 
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
 
 function sendUnauthorized(response) {
     response.status(401);
@@ -129,6 +130,51 @@ app.post('/write', function(request, response) {
 app.get('/read', function(request, response) {
     response.json(msgs);
 });
+
+/* Added for assignment */
+var exphbs  = require('express-handlebars');
+var async = require('async');
+app.engine('handlebars', exphbs({}));
+app.set('view engine', 'handlebars');
+app.set('views', __dirname + '/public/views');
+app.get('/app', function (request, response) {
+    var http = require('http');
+    var isLoggedIn = request.cookies.login !== undefined;
+
+    http.request({host:'localhost',path:'/states/abbreviations',port:'8888'}, function(res) {
+        res.on('data', function (data) {
+            var jsonObject = JSON.parse(data);
+            var states = [].concat(jsonObject);
+            var statesList = [];
+            var calls = [];
+
+            for (i = 0; i < jsonObject.length; i++) { 
+                calls.push(function(callback) {
+                    var http = require('http');
+                    http.request({host:'localhost',path:'/states/'+states.shift(),port:'8888'}, function(res) {
+                        res.on('data', function (data) {
+                            var jsonObject = JSON.parse(data);
+                            statesList.push(jsonObject);
+                            callback();
+                        });
+                    }).end();
+                });
+            }
+            async.parallel(calls, function(err, results) {
+                response.render('app', {
+                    isLoggedIn: function() {
+                        return isLoggedIn;
+                    },
+
+                    statesList: function() {
+                        return statesList;
+                    }
+                });
+            });
+        });
+    }).end();
+});
+/* Ended for assignment */
 
 app.use(express.static(__dirname+'/public'));
 

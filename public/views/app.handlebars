@@ -1,0 +1,312 @@
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-2.2.3.min.js"   integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo="   crossorigin="anonymous"></script>
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.11/css/jquery.dataTables.min.css" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.0.2/css/responsive.dataTables.min.css" crossorigin="anonymous">
+
+<!-- DataTables JavaScript -->
+<script src="https://cdn.datatables.net/1.10.11/js/jquery.dataTables.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.datatables.net/responsive/2.0.2/js/dataTables.responsive.min.js" crossorigin="anonymous"></script>
+
+<style>
+body {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #eee;
+}
+
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="email"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+#invalidLogin,
+#unauthorizedError {
+	color: red;
+}
+.stateDetails {
+	margin: 0 auto;
+}
+.stateDetails table, 
+.stateDetails th, 
+.stateDetails td {
+    border: 1px solid black;
+}
+.stateDetails th, 
+.stateDetails td {
+    padding: 5px;
+}
+.guestBookTable {
+	margin: 0 auto;
+}
+.guestBookTable table, 
+.guestBookTable th, 
+.guestBookTable td {
+    border: 1px solid black;
+}
+.guestBookTable th, 
+.guestBookTable td {
+    padding: 5px;
+}
+div.dtr-modal div.dtr-modal-display {
+	width: 450px;
+	height: 400px;
+}
+table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
+	content: '!';
+}
+</style>
+
+<div class="container">
+	<div class="row">
+		<div class="col-xs-8 col-md-8"></div>
+		<div class="col-xs-2 col-md-2">
+			<button class="btn btn-lg btn-primary btn-block btn-guest-book">Guest book</button>
+		</div>
+		{{#if isLoggedIn}}
+		<div class="col-xs-2 col-md-2">
+			<button class="btn btn-lg btn-warning btn-block btn-signout">Sign out</button>
+		</div>
+		{{else}}
+		<div class="col-xs-2 col-md-2">
+			<button class="btn btn-lg btn-success btn-block" data-toggle="modal" data-target="#loginModal">Sign in</button>
+		</div>
+		{{/if}}
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-md-12">
+			<h2 style="text-align:center;">US States</h2>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-xs-12 col-md-12">
+			<table id="statesList" class="display nowrap" cellspacing="0" width="100%">
+      	<thead>
+          <tr>
+            <th>Name</th>
+            <th>Abbreviation</th>
+            <th>Capital</th>
+            <th>Most-Populous-City</th>
+            <th>Population</th>
+            <th>Square-Miles</th>
+            <th>Time-Zone-1</th>
+            <th>Time-Zone-2</th>
+            <th>DST</th>
+          </tr>
+	      </thead>
+	      <tbody>
+	      	{{#each statesList}}
+          <tr>
+            <td>{{name}}</td>
+            <td>{{abbreviation}}</td>
+            <td>{{capital}}</td>
+            <td>{{most-populous-city}}</td>
+            <td>{{population}}</td>
+            <td>{{square-miles}}</td>
+            <td>{{time-zone-1}}</td>
+            <td>{{time-zone-2}}</td>
+            <td>{{dst}}</td>
+          </tr>
+          {{/each}}
+	      </tbody>
+	    </table>
+		</div>
+	</div>
+
+	<div class="modal fade" id="guestBook" tabindex="-1" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Guest book</h4>
+	      </div>
+	      <div class="modal-body">
+	      	<table class="guestBookTable">
+	      		<thead>
+		          <tr>
+		            <th>User</th>
+		            <th>Phone</th>
+		            <th>Message</th>
+		          </tr>
+		        </thead>
+		        <tbody>
+	        	</tbody>
+	        </table>
+
+	        <br>
+	        <form class="form-inline">
+						<div class="form-group">
+					    <label class="sr-only" for="phone">Phone</label>
+					    <input type="text" class="form-control" id="phone" placeholder="Phone" required>
+					  </div>
+					  <div class="form-group">
+					    <label class="sr-only" for="message">Message</label>
+					    <input type="text" class="form-control" id="message" placeholder="Message" required>
+					  </div>
+					  <button type="submit" class="btn btn-default btn-add-message" {{#unless isLoggedIn}}disabled{{/unless}}>Add message</button>
+					  <label id="unauthorizedError"></label>
+					</form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+
+	<div class="modal fade" id="loginModal" tabindex="-1" role="dialog">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">Please sign in</h4>
+	      </div>
+	      <div class="modal-body">
+				  <form class="form-signin">
+				    <label for="user" class="sr-only">Username</label>
+				    <input type="text" name="user" id="user" class="form-control" placeholder="Username" required="" autofocus="">
+				    <label for="password" class="sr-only">Password</label>
+				    <input type="password" name="password" id="password" class="form-control" placeholder="Password" required="">
+				    <label id="invalidLogin"></label>
+				    <button class="btn btn-lg btn-primary btn-block btn-signin" type="submit">Sign in</button>
+				  </form>
+				</div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+</div>
+
+<script>
+  $(document).ready(function(){
+    var user,pass;
+    $(".btn-signin").click(function(e){
+    	user=$("#user").val();
+      pass=$("#password").val();
+      if(user != '' && pass != '') {
+	    	e.preventDefault();
+	      $.ajax('/login', {
+	        type: 'POST',
+	        data: {user: user,password: pass},
+	        success: function() { window.location = '/app'},
+	        error  : function() { $('#invalidLogin').html('* Invalid Login')}
+				});
+      }
+    });
+
+    $(".btn-signout").click(function(e){
+      $.ajax('/logout', {
+        type: 'GET',
+        success: function() { window.location = '/app'},
+        error  : function() { }
+			});
+    });
+
+    $('#statesList').DataTable({
+        responsive: {
+            details: {
+                display: $.fn.dataTable.Responsive.display.modal( {
+                    header: function ( row ) {
+                        var data = row.data();
+                        return 'Details for '+data[0];
+                    }
+                } ),
+                renderer: function ( api, rowIdx, columns ) {
+                    var data = $.map( columns, function ( col, i ) {
+                        return '<tr>'+
+                                '<td>'+col.title+'</td> '+
+                                '<td>'+col.data+'</td>'+
+                            '</tr>';
+                    } ).join('');
+ 
+                    return $('<table class="stateDetails"/>').append( data );
+                }
+            }
+        }
+    });
+
+    $(".btn-guest-book").click(function(e){
+      $.ajax('/read', {
+        type: 'GET',
+        success: function(data) {
+        	$('#guestBook').modal('show');
+        	var html = '';
+        	for(i = 0; i < data.length; i++) {
+        		html += '<tr><td>'+data[i].user+'</td><td>'+data[i].phone+'</td><td>'+data[i].message+'</td></tr>';
+        	}
+
+        	$('.guestBookTable tbody').html(html);
+        	$("#phone").val('');
+      		$("#message").val('');
+        },
+        error  : function() { }
+			});
+    });
+
+    var phone,message;
+    $(".btn-add-message").click(function(e){
+    	phone=$("#phone").val();
+      message=$("#message").val();
+      if(phone != '' & message != '') {
+	    	e.preventDefault();
+	      $.ajax('/write', {
+	        type: 'POST',
+	        data: {phone: phone,message: message},
+	        success: function(data) {
+	        	$('#guestBook').modal('show');
+	        	var html = '';
+	        	for(i = 0; i < data.length; i++) {
+	        		html += '<tr><td>'+data[i].user+'</td><td>'+data[i].phone+'</td><td>'+data[i].message+'</td></tr>';
+	        	}
+
+	        	$('.guestBookTable tbody').html(html);
+	        	$("#phone").val('');
+	      		$("#message").val('');
+	        },
+	        error  : function() { $('#unauthorizedError').html('* Unauthorized User') }
+				});
+      }
+    });
+  });
+</script>
